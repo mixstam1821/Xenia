@@ -4,7 +4,7 @@ services:
     ports:
       - "8994:8994"
     volumes:
-      - ./data:/app/data
+      - ./data:/app/backend/data
     env_file:
-      - .env
+      - ./backend/.env
     restart: unless-stopped
