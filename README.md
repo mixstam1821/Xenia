@@ -1,28 +1,145 @@
 # Xenia
 
-<!-- Replace the line below with your actual logo file once you have one -->
-<!-- <p align="center"><img src="docs/logo.png" alt="Xenia logo" width="220"/></p> -->
-
 **A satellite and climate NetCDF viewer, fine-tuned for MTG/FCI.**
 
 Xenia is a FastAPI-based web application for exploring EUMETSAT Meteosat Third Generation (MTG) satellite products, alongside a wide range of climate and atmospheric science NetCDF files. Drop a file in, pick a variable, and get a georeferenced map — no GIS software, no Python scripts, no configuration.
 
 It is built for people who work with satellite data professionally: researchers, forecasters, and data engineers who need to quickly inspect what is actually inside a file, visualize it correctly, and move on.
 
----
 <video src="https://github.com/user-attachments/assets/f2d09b23-72b5-497d-9bc1-187d60ec1c9b" controls width="100%"></video>
-<!-- ── SCREENSHOTS ─────────────────────────────────────────────────────────────
-     Replace the placeholder lines below with your actual screenshots.
-     Recommended: 2–3 images showing different product types.
-     Put the image files in docs/screenshots/ and update the paths below.
-─────────────────────────────────────────────────────────────────────────────── -->
-
 
 <p align="center"><img src="assets/Screenshot_20260623_014859.png" width="780"/></p> 
 
 <p align="center"><img src="assets/Screenshot_20260623_020531.png" width="780"/></p> 
 
 <p align="center"><img src="assets/Screenshot_20260623_013817.png" width="780"/></p> 
+
+
+---
+
+## Installation
+
+### Method 1 — Using `uv` 
+
+`uv` is a modern Python package manager that is **much faster** than pip — installation typically takes under 2 minutes instead of 10–15. It also handles virtual environments automatically.
+
+#### Step 1 — Install `uv`
+
+**macOS / Linux:**
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Then restart your terminal (or run `source ~/.bashrc` / `source ~/.zshrc`).
+
+**Windows (PowerShell):**
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+Then close and reopen your terminal.
+
+Verify it works:
+```bash
+uv --version
+```
+
+#### Step 2 — Install Git and download Xenia
+
+Same as Method 1, Steps 2 and 3.
+
+```bash
+git clone https://github.com/mixstam1821/xenia.git
+cd xenia
+```
+
+#### Step 3 — Install dependencies with uv
+
+`uv` creates the virtual environment and installs everything in one command:
+
+```bash
+uv venv .venv --python 3.12
+uv pip install -r requirements.txt
+```
+
+> If Python 3.12 is not installed, uv will offer to download it automatically.
+
+#### Step 4 — Activate the environment
+
+**macOS / Linux:**
+```bash
+source .venv/bin/activate
+```
+
+**Windows:**
+```
+.venv\Scripts\activate
+```
+
+#### Step 5 — Configure `.env` and start the server
+
+Same as Method 1, Steps 6, 7, and 8.
+
+```bash
+cp backend/.env.example backend/.env   # edit backend/.env with your EUMETSAT keys if needed
+cd backend
+uvicorn main:app --host 0.0.0.0 --port 8994
+```
+
+Then open **http://localhost:8994** in your browser.
+
+---
+
+### Method 2 — Using Docker (no Python setup required)
+
+Docker lets you run Xenia in a completely isolated container, without needing to install Python, pip, or any dependencies on your machine. **This is ideal if you don't want to deal with Python at all.**
+
+#### Step 1 — Install Docker
+
+Go to **https://www.docker.com/products/docker-desktop/** and download **Docker Desktop** for your OS.
+
+Run the installer and start Docker Desktop. Make sure the Docker whale icon appears in your system tray (Windows) or menu bar (macOS) before continuing.
+
+Verify Docker is working:
+```bash
+docker --version
+```
+#### Step 2 — Install Git and download Xenia
+
+```bash
+git clone https://github.com/mixstam1821/xenia.git
+cd xenia
+```
+#### Step 3 — Set up your `.env` file
+
+**macOS / Linux:**
+```bash
+cp backend/.env.example backend/.env
+```
+**Windows (Command Prompt):**
+```
+copy backend\.env.example backend\.env
+```
+Open `backend/.env` and fill in your EUMETSAT credentials if you want the download feature. See Method 1 Step 6 for details.
+
+#### Step 4 — Build and run
+
+```bash
+docker compose up --build
+```
+The first time you run this, Docker will download the base Python image and install all dependencies inside the container. This takes **5–20 minutes**. Subsequent starts are instant.
+
+When you see:
+```
+INFO:     Uvicorn running on http://0.0.0.0:8994
+```
+the app is ready.
+
+---
+
+### Data directory
+
+Xenia reads from a single directory pointed to by `MTG_DATA_DIR` (default: `./data`). Zip files downloaded from the EUMETSAT Data Store are extracted automatically on startup — drop them in directly without unpacking. Subdirectories created by extracted zips are handled transparently.
 
 ---
 
@@ -148,134 +265,6 @@ Any CF-compliant NetCDF with 1-D or 2-D lat/lon coordinates is supported through
 ### Unstructured grids (UGRID)
 
 In Progress.
-
----
-
-## Installation
-
-### Method 1 — Using `uv` 
-
-`uv` is a modern Python package manager that is **much faster** than pip — installation typically takes under 2 minutes instead of 10–15. It also handles virtual environments automatically.
-
----
-
-#### Step 1 — Install `uv`
-
-**macOS / Linux:**
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-Then restart your terminal (or run `source ~/.bashrc` / `source ~/.zshrc`).
-
-**Windows (PowerShell):**
-```powershell
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-```
-
-Then close and reopen your terminal.
-
-Verify it works:
-```bash
-uv --version
-```
-
-#### Step 2 — Install Git and download Xenia
-
-Same as Method 1, Steps 2 and 3.
-
-```bash
-git clone https://github.com/mixstam1821/xenia.git
-cd xenia
-```
-
-#### Step 3 — Install dependencies with uv
-
-`uv` creates the virtual environment and installs everything in one command:
-
-```bash
-uv venv .venv --python 3.12
-uv pip install -r requirements.txt
-```
-
-> If Python 3.12 is not installed, uv will offer to download it automatically.
-
-#### Step 4 — Activate the environment
-
-**macOS / Linux:**
-```bash
-source .venv/bin/activate
-```
-
-**Windows:**
-```
-.venv\Scripts\activate
-```
-
-#### Step 5 — Configure `.env` and start the server
-
-Same as Method 1, Steps 6, 7, and 8.
-
-```bash
-cp backend/.env.example backend/.env   # edit backend/.env with your EUMETSAT keys if needed
-cd backend
-uvicorn main:app --host 0.0.0.0 --port 8994
-```
-
-Then open **http://localhost:8994** in your browser.
-
----
-
-### Method 2 — Using Docker (no Python setup required)
-
-Docker lets you run Xenia in a completely isolated container, without needing to install Python, pip, or any dependencies on your machine. **This is ideal if you don't want to deal with Python at all.**
-
-#### Step 1 — Install Docker
-
-Go to **https://www.docker.com/products/docker-desktop/** and download **Docker Desktop** for your OS.
-
-Run the installer and start Docker Desktop. Make sure the Docker whale icon appears in your system tray (Windows) or menu bar (macOS) before continuing.
-
-Verify Docker is working:
-```bash
-docker --version
-```
-#### Step 2 — Install Git and download Xenia
-
-```bash
-git clone https://github.com/mixstam1821/xenia.git
-cd xenia
-```
-#### Step 3 — Set up your `.env` file
-
-**macOS / Linux:**
-```bash
-cp backend/.env.example backend/.env
-```
-**Windows (Command Prompt):**
-```
-copy backend\.env.example backend\.env
-```
-Open `backend/.env` and fill in your EUMETSAT credentials if you want the download feature. See Method 1 Step 6 for details.
-
-#### Step 4 — Build and run
-
-```bash
-docker compose up --build
-```
-The first time you run this, Docker will download the base Python image and install all dependencies inside the container. This takes **5–20 minutes**. Subsequent starts are instant.
-
-When you see:
-```
-INFO:     Uvicorn running on http://0.0.0.0:8994
-```
-the app is ready.
-
----
-
-### Data directory
-
-Xenia reads from a single directory pointed to by `MTG_DATA_DIR` (default: `./data`). Zip files downloaded from the EUMETSAT Data Store are extracted automatically on startup — drop them in directly without unpacking. Subdirectories created by extracted zips are handled transparently.
 
 ---
 
