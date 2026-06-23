@@ -1,0 +1,10 @@
+services:
+  xenia:
+    build: .
+    ports:
+      - "8994:8994"
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
+    restart: unless-stopped
