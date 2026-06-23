@@ -141,11 +141,11 @@ Download the demo data https://zenodo.org/records/20805415 and place it inside t
 
 ---
 
-### CLI batch export — `download_and_export.py`
+### 🎉 CLI batch export 🎉 — `download_and_export.py`
 
 One of Xenia's practical strengths is that its render pipeline is not locked inside the web UI. The `download_and_export.py` script in `backend/` lets you download FCI L1C slots from the EUMETSAT Data Store and render any number of RGB composites to **georeferenced Web-Mercator PNGs** from the command line — no browser, no server, no manual steps.
 
-The script reads `EUMETSAT_KEY` and `EUMETSAT_SECRET` from `backend/.env` (the same file the server uses), so no additional setup is required beyond what you already configured for Xenia.
+The script reads `EUMETSAT_KEY` and `EUMETSAT_SECRET` from `backend/.env` (the same file the server uses), so no additional setup is required beyond what you already configured for Xenia. See or generate EUMETSAT Data Services API keys here: https://api.eumetsat.int/api-key/
 
 #### What it does
 
@@ -186,21 +186,19 @@ python download_and_export.py --composite natural_color \
 
 The exported PNGs are already projected in Web-Mercator and carry correct bounds. Load them directly into the map via the **PNG Animation** card in the sidebar:
 
-1. Sidebar → **PNG Animation**
-2. **Choose PNGs (multiple)** → select all files from `backend/exported_pngs/`
-3. Preset: **FCI full disk** (bounds `-81, -81, 81, 81`)
-4. Leave **Warp equirect → Mercator** = OFF (PNGs are already warped)
-5. Click **Prepare PNG animation**
+1. Sidebar → **PNG Image Overlay**
+2. **Choose PNG / JPG** → select the files from `backend/exported_pngs/`
+5. Click **Place x frames on globe**
 
 This produces a frame-by-frame animation of the composite sequence, displayed as a georeferenced overlay on the interactive map — exactly the same as a live render, but from pre-rendered files you can share, archive, or reuse.
 
-#### Why this matters
+#### Why this matters 💯🥇
 
 Pre-rendering to PNGs separates the expensive satellite I/O and reprojection from the viewing step. You can batch-export a full day overnight, then explore the sequence interactively with zero server load and no EUMETSAT connection. It also makes it straightforward to embed Xenia-rendered composites in reports, notebooks, or other tools that accept georeferenced images.
 
 ---
 
-## Why use it?
+## Why to use Xenia?
 
 Working with MTG satellite data in practice involves a lot of friction. Desktop tools like Panoply or QGIS can open NetCDF files, but they require manual projection setup and do not know anything about FCI chunk files, geostationary encoding, or EUMETSAT composite recipes. Writing a Python script works too, but it takes time and you have to repeat it for every new product type you encounter.
 
