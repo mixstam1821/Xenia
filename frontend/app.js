@@ -939,6 +939,7 @@ async function showTimeseries(timeDimName, lat, lon) {
 
     const data = await res.json();
     panel.style.display = "block";
+    if (_tsChart) { _tsChart.resize(); }
     title.textContent = `${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E`;
     renderTimeseriesChart(data.labels, data.values);
   } catch(e) {
