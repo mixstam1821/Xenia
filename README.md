@@ -39,14 +39,14 @@ It is built for people who work with satellite data professionally: researchers,
 ─────────────────────────────────────────────────────────────────────────────── -->
 
 <!-- <p align="center">
-  <a href="https://github.com/your-username/xenia/releases/download/v1.0/xenia_demo.mp4">
+  <a href="https://github.com/mixstam1821/xenia/releases/download/v1.0/xenia_demo.mp4">
     <img src="docs/screenshots/video_thumbnail.png" alt="Watch demo" width="600"/>
   </a>
   <br/><em>Click to download / watch the demo video</em>
 </p> -->
 
 <!-- Or if you open a GitHub issue to host the video, the link looks like this:  -->
-<!-- https://github.com/your-username/xenia/assets/YOUR_USER_ID/SOME_HASH.mp4   -->
+<!-- https://github.com/mixstam1821/xenia/assets/YOUR_USER_ID/SOME_HASH.mp4   -->
 
 ---
 
@@ -150,8 +150,7 @@ Xenia decodes the geostationary column/row angles using the CGMS projection form
 |---|---|
 | OSISAF GHRSST SST | Sea surface temperature on a lat/lon grid (OSISAF/Meteosat12) |
 | LSASAF LST | Land surface temperature on a geostationary grid |
-| H-SAF precipitation | Satellite-derived precipitation products |
-| H-SAF soil moisture | SIDin soil moisture index |
+| CM SAF SSR using Heliosat-3  | SID (Surface Solar Radiation) |
 
 ### Geostationary imagers — other satellites
 
@@ -184,7 +183,7 @@ Clone the repository, then run the script for your platform. Each script install
 
 **Linux**
 ```bash
-git clone https://github.com/your-username/xenia.git
+git clone https://github.com/mixstam1821/xenia.git
 cd xenia
 chmod +x install_linux.sh
 ./install_linux.sh
@@ -196,7 +195,7 @@ MTG_DATA_DIR=/path/to/your/data ./install_linux.sh
 
 **macOS** (Ventura / Sonoma, Apple Silicon and Intel)
 ```bash
-git clone https://github.com/your-username/xenia.git
+git clone https://github.com/mixstam1821/xenia.git
 cd xenia
 chmod +x install_mac.sh
 ./install_mac.sh
@@ -211,7 +210,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 Then:
 ```powershell
-git clone https://github.com/your-username/xenia.git
+git clone https://github.com/mixstam1821/xenia.git
 cd xenia
 .\install_windows.ps1
 ```
@@ -258,7 +257,7 @@ If you prefer full control or are working in an existing environment:
 
 ```bash
 # 1. clone
-git clone https://github.com/your-username/xenia.git
+git clone https://github.com/mixstam1821/xenia.git
 cd xenia
 
 # 2. create and activate a virtual environment
