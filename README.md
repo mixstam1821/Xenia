@@ -10,7 +10,7 @@ Xenia is a FastAPI-based web application for exploring EUMETSAT Meteosat Third G
 It is built for people who work with satellite data professionally: researchers, forecasters, and data engineers who need to quickly inspect what is actually inside a file, visualize it correctly, and move on.
 
 ---
-
+<video src="https://github.com/user-attachments/assets/f2d09b23-72b5-497d-9bc1-187d60ec1c9b" controls width="100%"></video>
 <!-- ── SCREENSHOTS ─────────────────────────────────────────────────────────────
      Replace the placeholder lines below with your actual screenshots.
      Recommended: 2–3 images showing different product types.
@@ -23,32 +23,6 @@ It is built for people who work with satellite data professionally: researchers,
 <p align="center"><img src="assets/Screenshot_20260623_020531.png" width="780"/></p> 
 
 <p align="center"><img src="assets/Screenshot_20260623_013817.png" width="780"/></p> 
-
----
-
-Download demo data from here: https://zenodo.org/records/20805415
-
-<!-- ── VIDEO DEMO ───────────────────────────────────────────────────────────────
-     Option A — host the video as a GitHub release asset:
-       1. Go to Releases → Create a new release (or use a draft release).
-       2. Drag and drop your .mp4 into the release assets.
-       3. Copy the direct download URL and paste it below.
-
-     Option B — open a GitHub issue, drag the .mp4 into the comment box,
-       and GitHub will host it and give you a URL. Use that URL here.
-
-     Then uncomment and update the lines below.
-─────────────────────────────────────────────────────────────────────────────── -->
-
-<!-- <p align="center">
-  <a href="https://github.com/mixstam1821/xenia/releases/download/v1.0/xenia_demo.mp4">
-    <img src="docs/screenshots/video_thumbnail.png" alt="Watch demo" width="600"/>
-  </a>
-  <br/><em>Click to download / watch the demo video</em>
-</p> -->
-
-<!-- Or if you open a GitHub issue to host the video, the link looks like this:  -->
-<!-- https://github.com/mixstam1821/xenia/assets/YOUR_USER_ID/SOME_HASH.mp4   -->
 
 ---
 
