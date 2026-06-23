@@ -6,8 +6,9 @@ Xenia is a FastAPI-based web application for exploring EUMETSAT Meteosat Third G
 
 It is built for people who work with satellite data professionally: researchers, forecasters, and data engineers who need to quickly inspect what is actually inside a file, visualize it correctly, and move on.
 
-<video src="https://github.com/user-attachments/assets/c14d743d-25a2-4de3-bf8c-3631cafd5e93" controls width="100%"></video>
-
+<div align="center">
+<video src="https://github.com/user-attachments/assets/c14d743d-25a2-4de3-bf8c-3631cafd5e93" controls width="780"></video>
+</div>
 <p align="center"><img src="assets/Screenshot_20260623_014859.png" width="780"/></p> 
 
 <p align="center"><img src="assets/xeniam.png" width="780"/></p> 
