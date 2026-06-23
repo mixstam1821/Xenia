@@ -7,4 +7,6 @@ services:
       - ./backend/data:/app/backend/data
     env_file:
       - ./backend/.env
+    user: "${UID:-1000}:${GID:-1000}"
     restart: unless-stopped
+ 
