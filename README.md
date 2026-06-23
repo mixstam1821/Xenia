@@ -1,8 +1,8 @@
 # Xenia
 
-**A satellite and climate NetCDF viewer, fine-tuned for MTG/FCI.**
+**A satellite and climate NetCDF viewer, fine-tuned for MTG FCI & LI products.**
 
-Xenia is a FastAPI-based web application for exploring EUMETSAT Meteosat Third Generation (MTG) satellite products, alongside a wide range of climate and atmospheric science NetCDF files. Drop a file in, pick a variable, and get a georeferenced map — no GIS software, no Python scripts, no configuration.
+Xenia is a FastAPI-based web application for exploring EUMETSAT Meteosat Third Generation (MTG) satellite products, alongside a wide range of climate and atmospheric science NetCDF files. Drop a file in, pick a variable, and get a georeferenced map on an interactive 3D globe.
 
 It is built for people who work with satellite data professionally: researchers, forecasters, and data engineers who need to quickly inspect what is actually inside a file, visualize it correctly, and move on.
 
@@ -21,7 +21,7 @@ It is built for people who work with satellite data professionally: researchers,
 
 ### Method 1 — Using `uv` 
 
-`uv` is a modern Python package manager that is **much faster** than pip — installation typically takes under 2 minutes instead of 10–15. It also handles virtual environments automatically.
+`uv` is a modern Python package manager that is **much faster** than pip — installation typically takes under 2 minutes. It also handles virtual environments automatically.
 
 #### Step 1 — Install `uv`
 
@@ -45,8 +45,6 @@ uv --version
 ```
 
 #### Step 2 — Install Git and download Xenia
-
-Same as Method 1, Steps 2 and 3.
 
 ```bash
 git clone https://github.com/mixstam1821/xenia.git
@@ -78,8 +76,6 @@ source .venv/bin/activate
 
 #### Step 5 — Configure `.env` and start the server
 
-Same as Method 1, Steps 6, 7, and 8.
-
 ```bash
 cp backend/.env.example backend/.env   # edit backend/.env with your EUMETSAT keys if needed
 cd backend
@@ -92,7 +88,7 @@ Then open **http://localhost:8994** in your browser.
 
 ### Method 2 — Using Docker (no Python setup required)
 
-Docker lets you run Xenia in a completely isolated container, without needing to install Python, pip, or any dependencies on your machine. **This is ideal if you don't want to deal with Python at all.**
+Docker lets you run Xenia in a completely isolated container, without needing to install Python, pip, or any dependencies on your machine.
 
 #### Step 1 — Install Docker
 
@@ -127,7 +123,7 @@ Open `backend/.env` and fill in your EUMETSAT credentials if you want the downlo
 ```bash
 docker compose up --build
 ```
-The first time you run this, Docker will download the base Python image and install all dependencies inside the container. This takes **5–20 minutes**. Subsequent starts are instant.
+The first time you run this, Docker will download the base Python image and install all dependencies inside the container. This takes around 5 minutes. Subsequent starts are instant.
 
 When you see:
 ```
@@ -165,7 +161,7 @@ Xenia has a particular focus on MTG/FCI products, but it is built on a layered f
 
 **Stable native extension handling.** HDF5, PROJ, and pyresample are C extensions that do not always behave well when first-initialized from short-lived async threads. Xenia routes all native work through a single persistent thread, which keeps initialization stable and means that if something does go wrong at the native level, it surfaces as a clean HTTP error rather than a process crash.
 
-**Broad format support.** Beyond MTG, Xenia supports TROPOMI/Sentinel-5P swath data, GOES ABI, MSG SEVIRI, OSISAF SST, LSASAF LST, H-SAF precipitation, ERA5 and CMIP6 reanalysis, ISCCP, CERES, CLARA, and unstructured grid files (UGRID/UXarray). The fallback chain is: satpy readers → xarray CF → TROPOMI subgroup loader → UXarray.
+**Broad format support.** Beyond MTG, Xenia supports several 2d geospatial data such as TROPOMI/Sentinel-5P swath data, GOES ABI, OSISAF SST, LSASAF LST, H-SAF precipitation, ERA5 and CMIP6 reanalysis, ISCCP, CERES, CLARA and RTM outputs (Stamatis et al., https://zenodo.org/records/17382343). The fallback chain is: satpy readers → xarray CF → TROPOMI subgroup loader → UXarray (experimental).
 
 ---
 
@@ -182,7 +178,6 @@ The server is built with [FastAPI](https://fastapi.tiangolo.com/), which provide
 - **[numpy](https://numpy.org/) / [scipy](https://scipy.org/)** — array math throughout. The AMV scatter gridding, LI flash accumulation, and all colormap stretches are pure NumPy. scipy's `cKDTree` is used for the scatter-to-grid nearest-neighbor lookup.
 - **[Matplotlib](https://matplotlib.org/)** — colormap application. Xenia uses Matplotlib's colormap registry to convert float32 arrays to RGBA PNGs.
 - **[Pillow](https://pillow.readthedocs.io/)** — PNG encoding of the final RGBA arrays before they are streamed to the browser.
-- **[UXarray](https://uxarray.readthedocs.io/)** — unstructured grid support. Used to load UGRID-convention files (spectral element models, unstructured ocean grids) and extract face centroid coordinates for scatter rendering.
 
 **Frontend — plain HTML / JS / MapLibre GL**
 
@@ -249,7 +244,6 @@ Xenia decodes the geostationary column/row angles using the CGMS projection form
 
 | Sensor | Reader |
 |---|---|
-| MSG SEVIRI | Meteosat Second Generation radiances and L2 |
 | GOES-16/17/18 ABI L1B | ABI radiance channels |
 | GOES ABI L2 | Cloud, LST, and derived products |
 | CLAVRX | AVHRR/MODIS cloud and surface retrievals |
