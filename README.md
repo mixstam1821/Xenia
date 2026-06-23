@@ -26,6 +26,8 @@ It is built for people who work with satellite data professionally: researchers,
 
 ---
 
+Download demo data from here: https://zenodo.org/records/20805415
+
 <!-- ── VIDEO DEMO ───────────────────────────────────────────────────────────────
      Option A — host the video as a GitHub release asset:
        1. Go to Releases → Create a new release (or use a draft release).
@@ -172,6 +174,7 @@ Any CF-compliant NetCDF with 1-D or 2-D lat/lon coordinates is supported through
 ### Unstructured grids (UGRID)
 
 In Progress.
+
 ---
 
 ## Installation
