@@ -127,7 +127,19 @@ copy backend\.env.example backend\.env
 ```
 Open `backend/.env` and fill in your EUMETSAT credentials if you want the download feature. See Method 1 Step 6 for details.
 
-#### Step 4 — Build and run
+
+#### Step 4 — Fix data folder permissions (Linux and macOS only)
+
+> **Windows users: skip this step.** Docker Desktop on Windows does not have this problem — you can copy files into `backend/data/` normally via File Explorer.
+
+On Linux and macOS, run:
+
+```bash
+sudo chown -R $USER:$USER backend/data/
+```
+After this, you can freely copy satellite files into `backend/data/`.
+
+#### Step 5 — Build and run
 
 ```bash
 docker compose up --build
@@ -139,6 +151,20 @@ When you see:
 INFO:     Uvicorn running on http://0.0.0.0:8994
 ```
 the app is ready.
+
+#### Step 6 — Stopping Docker
+
+Press `Ctrl+C` in the terminal, or run:
+
+```bash
+docker compose down
+```
+
+#### Starting again next time
+
+```bash
+docker compose up
+```
 
 ---
 
