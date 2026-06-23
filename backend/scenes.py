@@ -29,7 +29,7 @@ try:
 except ImportError:
     SATPY_AVAILABLE = False
 
-DATA_DIR = Path(os.environ.get("MTG_DATA_DIR", "./data"))
+DATA_DIR = Path(os.environ.get("MTG_DATA_DIR", str(Path(__file__).parent / "data")))
 
 __all__ = [
     "DATA_DIR",
