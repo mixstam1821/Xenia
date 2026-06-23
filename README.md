@@ -22,7 +22,7 @@ It is built for people who work with satellite data professionally: researchers,
 
 <p align="center"><img src="assets/Screenshot_20260623_020531.png" width="780"/></p> 
 
-<p align="center"><img src="assets/Screenshot_20260623_015020.png" width="780"/></p> 
+<p align="center"><img src="assets/Screenshot_20260623_013817.png" width="780"/></p> 
 
 ---
 
