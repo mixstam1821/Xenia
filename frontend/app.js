@@ -102,6 +102,8 @@ function toggleSidebar() {
   sb.classList.toggle('collapsed');
   btn.classList.toggle('collapsed');
   btn.textContent = sb.classList.contains('collapsed') ? '▶' : '◀';
+  setTimeout(() => map.resize(), 210);
+
 }
 // ══════════════════════════════════════════════════════════════════════════
 //  TIMESTAMP OVERLAY
