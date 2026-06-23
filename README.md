@@ -17,14 +17,12 @@ It is built for people who work with satellite data professionally: researchers,
      Put the image files in docs/screenshots/ and update the paths below.
 ─────────────────────────────────────────────────────────────────────────────── -->
 
-<!-- FCI Dust RGB composite -->
-<!-- <p align="center"><img src="docs/screenshots/dust_rgb.png" alt="FCI Dust RGB composite" width="780"/></p> -->
 
-<!-- AMV wind vectors / scatter plot -->
-<!-- <p align="center"><img src="docs/screenshots/amv_speed.png" alt="AMV wind speed scatter" width="780"/></p> -->
+<p align="center"><img src="assets/Screenshot_20260623_014859.png" width="780"/></p> 
 
-<!-- TROPOMI SO2 swath -->
-<!-- <p align="center"><img src="docs/screenshots/tropomi_so2.png" alt="TROPOMI SO2" width="780"/></p> -->
+<p align="center"><img src="assets/Screenshot_20260623_020531.png" width="780"/></p> 
+
+<p align="center"><img src="assets/Screenshot_20260623_015020.png" width="780"/></p> 
 
 ---
 
