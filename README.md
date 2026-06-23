@@ -265,32 +265,9 @@ source .venv/bin/activate        # Windows: .venv\Scripts\activate
 
 # 3. install dependencies
 pip install --upgrade pip
-pip install \
-    "fastapi>=0.111" \
-    "uvicorn[standard]>=0.29" \
-    "pydantic>=2.0" \
-    "python-multipart" \
-    "python-dotenv" \
-    "numpy>=1.26" \
-    "scipy>=1.12" \
-    "xarray>=2024.1" \
-    "netcdf4" \
-    "h5py" \
-    "h5netcdf" \
-    "dask[distributed]" \
-    "pyresample>=3.0" \
-    "pyproj>=3.6" \
-    "rasterio" \
-    "matplotlib>=3.8" \
-    "Pillow>=10.0" \
-    "satpy[all]" \
-    "uxarray" \
-    "pycoast" \
-    "trollimage" \
-    "pyorbital" \
-    "pykdtree"
+pip install -r requirements.txt
 
-# 4. set your data directory
+# 4. set your data directory, if needed
 export MTG_DATA_DIR=/path/to/your/data   # Windows: set MTG_DATA_DIR=C:\your\data
 
 # 5. start the server
