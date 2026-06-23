@@ -1,2 +1,347 @@
 # Xenia
-A Netcdf Viewer
+
+<!-- Replace the line below with your actual logo file once you have one -->
+<!-- <p align="center"><img src="docs/logo.png" alt="Xenia logo" width="220"/></p> -->
+
+**A satellite and climate NetCDF viewer, fine-tuned for MTG/FCI.**
+
+Xenia is a FastAPI-based web application for exploring EUMETSAT Meteosat Third Generation (MTG) satellite products, alongside a wide range of climate and atmospheric science NetCDF files. Drop a file in, pick a variable, and get a georeferenced map — no GIS software, no Python scripts, no configuration.
+
+It is built for people who work with satellite data professionally: researchers, forecasters, and data engineers who need to quickly inspect what is actually inside a file, visualize it correctly, and move on.
+
+---
+
+<!-- ── SCREENSHOTS ─────────────────────────────────────────────────────────────
+     Replace the placeholder lines below with your actual screenshots.
+     Recommended: 2–3 images showing different product types.
+     Put the image files in docs/screenshots/ and update the paths below.
+─────────────────────────────────────────────────────────────────────────────── -->
+
+<!-- FCI Dust RGB composite -->
+<!-- <p align="center"><img src="docs/screenshots/dust_rgb.png" alt="FCI Dust RGB composite" width="780"/></p> -->
+
+<!-- AMV wind vectors / scatter plot -->
+<!-- <p align="center"><img src="docs/screenshots/amv_speed.png" alt="AMV wind speed scatter" width="780"/></p> -->
+
+<!-- TROPOMI SO2 swath -->
+<!-- <p align="center"><img src="docs/screenshots/tropomi_so2.png" alt="TROPOMI SO2" width="780"/></p> -->
+
+---
+
+<!-- ── VIDEO DEMO ───────────────────────────────────────────────────────────────
+     Option A — host the video as a GitHub release asset:
+       1. Go to Releases → Create a new release (or use a draft release).
+       2. Drag and drop your .mp4 into the release assets.
+       3. Copy the direct download URL and paste it below.
+
+     Option B — open a GitHub issue, drag the .mp4 into the comment box,
+       and GitHub will host it and give you a URL. Use that URL here.
+
+     Then uncomment and update the lines below.
+─────────────────────────────────────────────────────────────────────────────── -->
+
+<!-- <p align="center">
+  <a href="https://github.com/your-username/xenia/releases/download/v1.0/xenia_demo.mp4">
+    <img src="docs/screenshots/video_thumbnail.png" alt="Watch demo" width="600"/>
+  </a>
+  <br/><em>Click to download / watch the demo video</em>
+</p> -->
+
+<!-- Or if you open a GitHub issue to host the video, the link looks like this:  -->
+<!-- https://github.com/your-username/xenia/assets/YOUR_USER_ID/SOME_HASH.mp4   -->
+
+---
+
+## Why use it?
+
+Working with MTG satellite data in practice involves a lot of friction. Desktop tools like Panoply or QGIS can open NetCDF files, but they require manual projection setup and do not know anything about FCI chunk files, geostationary encoding, or EUMETSAT composite recipes. Writing a Python script works too, but it takes time and you have to repeat it for every new product type you encounter.
+
+Xenia is a small attempt to reduce that friction. You point it at a file or a folder, and it tries to figure out the rest — what projection the data is in, how to decode it, what the sensible default stretch is — and gives you a rendered map without any setup. It is especially handy when you receive a new product and just want to see what is inside before writing any real processing code.
+
+It is not a replacement for satpy or xarray in a production pipeline. It is a viewer: quick, local, and focused on making the data visible as fast as possible.
+
+---
+
+## What it covers
+
+Xenia has a particular focus on MTG/FCI products, but it is built on a layered fallback system that handles a broad range of file types. Here is what that looks like in practice.
+
+**MTG FCI L1C and L2.** The primary target. Xenia understands FCI chunk file grouping, the CGMS geostationary projection, CF-convention coordinate handling, and the full satpy reader stack for FCI. It also handles a number of cases where satpy is slower or less reliable than a direct approach — see the technical notes below.
+
+**RGB composites from raw FCI bands.** Dust, Ash, Airmass, Night Microphysics, True Color, Natural Color, Day Microphysics, Cloud Phase, Fire Temperature, Snow — computed directly from brightness temperature and reflectance channels using EUMETSAT-specified per-channel stretch and gamma values. This avoids the satpy composite stack, which can be slow to initialize and sometimes fails when auxiliary data (solar zenith angle, etc.) is not available.
+
+**Separate geometry and color caches.** Reprojection is the slow step. Xenia caches the warped float32 array and its bounds separately from the colorized PNG. Changing the colormap or stretch on a large FCI full-disk scene re-runs only the colormap step, which takes milliseconds. The expensive warp is not repeated.
+
+**Stable native extension handling.** HDF5, PROJ, and pyresample are C extensions that do not always behave well when first-initialized from short-lived async threads. Xenia routes all native work through a single persistent thread, which keeps initialization stable and means that if something does go wrong at the native level, it surfaces as a clean HTTP error rather than a process crash.
+
+**Broad format support.** Beyond MTG, Xenia supports TROPOMI/Sentinel-5P swath data, GOES ABI, MSG SEVIRI, OSISAF SST, LSASAF LST, H-SAF precipitation, ERA5 and CMIP6 reanalysis, ISCCP, CERES, CLARA, and unstructured grid files (UGRID/UXarray). The fallback chain is: satpy readers → xarray CF → TROPOMI subgroup loader → UXarray.
+
+---
+
+## Technology stack
+
+**Backend — Python / FastAPI**
+
+The server is built with [FastAPI](https://fastapi.tiangolo.com/), which provides async HTTP routing, automatic request validation, and a clean interface for streaming large PNG responses back to the browser. All the heavy lifting — file loading, reprojection, colorization — runs in a background thread pool so the event loop stays free.
+
+- **[satpy](https://satpy.readthedocs.io/)** — used for reading FCI L1C and L2 files, MSG SEVIRI, GOES ABI, and other satellite formats through its reader plugin system. satpy handles the low-level format parsing, calibration, and dataset naming conventions for each sensor family.
+- **[pyresample](https://pyresample.readthedocs.io/)** — used for the core reprojection work: converting data from satellite-native projections (geostationary, swath) to a WGS84 or Mercator output grid. The KD-tree resampler from pyresample handles the nearest-neighbor and weighted average interpolation.
+- **[xarray](https://xarray.pydata.org/)** — the fallback reader for any file that satpy does not handle. xarray opens CF-compliant NetCDF files, decodes coordinate metadata, and provides the DataArray interface that the rest of the pipeline works with.
+- **[PROJ / pyproj](https://pyproj4.github.io/pyproj/)** — coordinate reference system transformations, used under the hood by pyresample and also directly for geostationary projection math.
+- **[numpy](https://numpy.org/) / [scipy](https://scipy.org/)** — array math throughout. The AMV scatter gridding, LI flash accumulation, and all colormap stretches are pure NumPy. scipy's `cKDTree` is used for the scatter-to-grid nearest-neighbor lookup.
+- **[Matplotlib](https://matplotlib.org/)** — colormap application. Xenia uses Matplotlib's colormap registry to convert float32 arrays to RGBA PNGs.
+- **[Pillow](https://pillow.readthedocs.io/)** — PNG encoding of the final RGBA arrays before they are streamed to the browser.
+- **[UXarray](https://uxarray.readthedocs.io/)** — unstructured grid support. Used to load UGRID-convention files (spectral element models, unstructured ocean grids) and extract face centroid coordinates for scatter rendering.
+
+**Frontend — plain HTML / JS / MapLibre GL**
+
+The frontend is intentionally lightweight — no build step, no framework, just HTML, CSS, and vanilla JavaScript served directly by FastAPI's static file handler.
+
+- **[MapLibre GL JS](https://maplibre.org/)** — the web map. Rendered satellite images are added as georeferenced raster overlays on top of a base map. MapLibre handles tile loading, panning, zooming, and the coordinate system math that keeps the overlay aligned correctly.
+- **Fetch API** — all communication with the backend is plain `fetch()` calls to the FastAPI endpoints (`/api/render`, `/api/recolor`, `/api/inspect`, etc.). Responses include custom HTTP headers (`X-Bounds`, `X-Vmin`, `X-Vmax`) that the frontend reads to position the image overlay and populate the UI controls.
+- **Canvas API** — used for the globe spin animation and any client-side image compositing.
+
+The separation between backend (all the science) and frontend (just display and controls) means the backend can also be used headlessly — every render endpoint returns a PNG with geographic bounds in the headers, so it is straightforward to call from a script or another service.
+
+---
+
+## Supported file types
+
+### MTG FCI — Level 1C (calibrated radiances)
+
+FCI L1C files contain top-of-atmosphere radiances and reflectances from the Flexible Combined Imager. These are the raw measurement files — one variable per spectral channel, one chunk file per segment of the full-disk scan.
+
+Channels: VIS0.4, VIS0.5, VIS0.6, VIS0.8, NIR1.3, NIR1.6, NIR2.2, IR3.8, WV6.3, WV7.3, IR8.7, IR9.7, IR10.5, IR12.3, IR13.3 (FDHSI) plus HRV channels (HRFI).
+
+Xenia groups the chunk files automatically, renders single channels, and can produce RGB composites directly from the raw bands.
+
+### MTG FCI — Level 2 Products
+
+L2 means the data has been processed beyond raw radiances into geophysical parameters. These products are derived from the L1C measurements using retrieval algorithms. Each has its own file structure, projection, and variable set.
+
+| Product | Code | What it contains |
+|---|---|---|
+| Cloud Top Height & Temperature | CTTH | Cloud top pressure, height, temperature on a geostationary grid |
+| Cloud Mask | CLM | Binary clear/cloudy flag per pixel |
+| Cloud Type | CT | Cloud phase and type classification |
+| Optimal Cloud Analysis | OCA | Multi-layer cloud optical depth, particle size, phase |
+| Active Fire | FIR | Fire radiative power, fire mask |
+| Outgoing Longwave Radiation | OLR | Broadband OLR at top of atmosphere |
+| Accumulated Flash Area | AFA | Lightning flash area accumulation over time |
+| Aerosol Single-layer Retrieval | ASR | Aerosol optical depth, Ångström exponent, on a geodetic grid |
+| Atmospheric Motion Vectors | AMV | Per-vector wind speed, direction, pressure level — IR10.5, IR3.8, WV6.3, WV7.3 channels |
+| Global Instability Indices | GII | Atmospheric instability indices on a geostationary grid |
+| Cloud Radiative Model | CRM | Radiative fluxes derived from cloud retrievals |
+
+### MTG LI — Level 2 Lightning Products
+
+The Lightning Imager produces high-cadence lightning event data. These files use a sparse encoding: each detected event is a point with a geostationary column/row index, not a gridded array.
+
+| Product | What it contains |
+|---|---|
+| AFA | Accumulated flash area |
+| AF | Individual flash events |
+| LFL | Lightning flash luminance |
+| LGR | Lightning group radiance |
+
+Xenia decodes the geostationary column/row angles using the CGMS projection formula and scatters the events onto a geographic grid for rendering.
+
+### EUMETSAT L2 — Third-party products
+
+| Product | What it contains |
+|---|---|
+| OSISAF GHRSST SST | Sea surface temperature on a lat/lon grid (OSISAF/Meteosat12) |
+| LSASAF LST | Land surface temperature on a geostationary grid |
+| H-SAF precipitation | Satellite-derived precipitation products |
+| H-SAF soil moisture | SIDin soil moisture index |
+
+### Geostationary imagers — other satellites
+
+| Sensor | Reader |
+|---|---|
+| MSG SEVIRI | Meteosat Second Generation radiances and L2 |
+| GOES-16/17/18 ABI L1B | ABI radiance channels |
+| GOES ABI L2 | Cloud, LST, and derived products |
+| CLAVRX | AVHRR/MODIS cloud and surface retrievals |
+
+### TROPOMI / Sentinel-5P
+
+TROPOMI L2 files contain atmospheric chemistry columns (SO2, NO2, O3, CO, CH4, aerosol) on an orbit swath. The files use a nested group structure that standard xarray opens incorrectly. Xenia loads the PRODUCT subgroup directly and handles the latitude/longitude 2-D coordinate arrays.
+
+### Generic climate NetCDF
+
+Any CF-compliant NetCDF with 1-D or 2-D lat/lon coordinates is supported through the xarray fallback path. This covers ERA5 reanalysis, CMIP6 model output, ISCCP cloud climatology, CERES radiation, CLARA satellite climate records, GPCP precipitation, and custom model output including FESOM unstructured ocean grids.
+
+### Unstructured grids (UGRID)
+
+Files following the UGRID convention (face-node connectivity, face centroid coordinates) are loaded with UXarray and rendered by nearest-neighbor scatter to a Mercator grid. This covers spectral element model output (CAM-SE, MPAS) and unstructured ocean models.
+
+---
+
+## Installation
+
+### One-command install (uv)
+
+Clone the repository, then run the script for your platform. Each script installs uv (if not present), creates a virtual environment, installs all dependencies, and starts the server. On subsequent runs it skips the steps already done and just starts.
+
+**Linux**
+```bash
+git clone https://github.com/your-username/xenia.git
+cd xenia
+chmod +x install_linux.sh
+./install_linux.sh
+```
+To use a custom data directory:
+```bash
+MTG_DATA_DIR=/path/to/your/data ./install_linux.sh
+```
+
+**macOS** (Ventura / Sonoma, Apple Silicon and Intel)
+```bash
+git clone https://github.com/your-username/xenia.git
+cd xenia
+chmod +x install_mac.sh
+./install_mac.sh
+```
+The script installs Homebrew and the required system libraries (HDF5, PROJ, GDAL) automatically if they are missing. The browser opens automatically after startup.
+
+**Windows** (PowerShell 5.1 or 7+)
+
+First, allow local scripts to run (one-time, run as Administrator):
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+Then:
+```powershell
+git clone https://github.com/your-username/xenia.git
+cd xenia
+.\install_windows.ps1
+```
+To use a custom data directory:
+```powershell
+$env:MTG_DATA_DIR = "D:\my_data"
+.\install_windows.ps1
+```
+The browser opens automatically after startup. On Windows, `pyresample`, `rasterio`, and `pyproj` install as pre-built wheels so no compiler or system libraries are required.
+
+After startup, open `http://localhost:8994` in your browser (or it opens automatically on macOS and Windows).
+
+---
+
+### With Docker
+
+```bash
+# Build
+docker build -t xenia .
+
+# Run, mounting your data directory
+docker run -d \
+  -p 8994:8994 \
+  -v /path/to/your/data:/data \
+  -e MTG_DATA_DIR=/data \
+  --name xenia \
+  xenia
+```
+
+Then open `http://localhost:8994`.
+
+The Dockerfile uses a `condaforge/mambaforge` base so GDAL, PROJ, HDF5, and pyresample install as pre-compiled conda-forge binaries — no compilation from source, no missing system libraries, no PROJ_DATA path issues. pip-only packages (satpy, uxarray, pycoast) are layered on top.
+
+To stop and remove:
+```bash
+docker stop xenia && docker rm xenia
+```
+
+---
+
+### Classic pip (manual)
+
+If you prefer full control or are working in an existing environment:
+
+```bash
+# 1. clone
+git clone https://github.com/your-username/xenia.git
+cd xenia
+
+# 2. create and activate a virtual environment
+python3.11 -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+
+# 3. install dependencies
+pip install --upgrade pip
+pip install \
+    "fastapi>=0.111" \
+    "uvicorn[standard]>=0.29" \
+    "pydantic>=2.0" \
+    "python-multipart" \
+    "python-dotenv" \
+    "numpy>=1.26" \
+    "scipy>=1.12" \
+    "xarray>=2024.1" \
+    "netcdf4" \
+    "h5py" \
+    "h5netcdf" \
+    "dask[distributed]" \
+    "pyresample>=3.0" \
+    "pyproj>=3.6" \
+    "rasterio" \
+    "matplotlib>=3.8" \
+    "Pillow>=10.0" \
+    "satpy[all]" \
+    "uxarray" \
+    "pycoast" \
+    "trollimage" \
+    "pyorbital" \
+    "pykdtree"
+
+# 4. set your data directory
+export MTG_DATA_DIR=/path/to/your/data   # Windows: set MTG_DATA_DIR=C:\your\data
+
+# 5. start the server
+cd backend
+uvicorn main:app --host 0.0.0.0 --port 8994 --workers 1
+```
+
+Then open `http://localhost:8994`.
+
+> **Note on system libraries:** On Linux you need `libhdf5-dev`, `libproj-dev`, and `libgdal-dev` installed via your package manager before `pip install` will succeed. On macOS install them via Homebrew (`brew install hdf5 proj gdal`). On Windows the PyPI wheels are self-contained and no system libraries are needed.
+
+---
+
+### Data directory
+
+Xenia reads from a single directory pointed to by `MTG_DATA_DIR` (default: `./data`). Zip files downloaded from the EUMETSAT Data Store are extracted automatically on startup — drop them in directly without unpacking. Subdirectories created by extracted zips are handled transparently.
+
+---
+
+## Technical notes
+
+### Why native extensions run on a dedicated thread
+
+FastAPI runs sync route handlers on threads borrowed from anyio's worker pool. These threads are short-lived and recycled. The problem is that native extensions like HDF5 (via h5py/netcdf4), PROJ, and pyresample's OpenMP-backed KD-tree resampler are not safe to first-initialize from an arbitrary, soon-to-be-recycled thread. The race condition between thread initialization and recycling is what causes the intermittent segfaults that are hard to reproduce but easy to trigger under load.
+
+The fix is to run all native-touching work on a single persistent `ThreadPoolExecutor` with `max_workers=1`. That thread lives for the lifetime of the process, so the native libraries initialize once and stay initialized. All reprojection, HDF5 access, and pyresample calls go through `_run_native()`, which submits to this executor and waits with a configurable timeout.
+
+### How AMV scatter products are rendered
+
+Atmospheric Motion Vector files do not contain gridded data. Each wind observation is a point — a latitude, longitude, pressure level, speed, and direction. The coordinates are stored as raw `int16` with `scale_factor=0.01`, so a naive `xr.open_dataset` without careful handling returns unscaled integers.
+
+Xenia detects this structure by checking for explicit `latitude`/`longitude` variables in the dataset (as opposed to geostationary `x`/`y` scan angles). It decodes the coordinates, applies the scale factor and fill value mask to both the coordinates and the data variable, then uses a cKDTree nearest-neighbor scatter to bin the observations onto a Mercator output grid at the native 32 km AMV grid spacing.
+
+### How the geometry and color caches work
+
+Reprojection is expensive. Colorization is cheap. Xenia caches them separately.
+
+The geometry cache stores the reprojected float32 array and its geographic bounds, keyed by a SHA-256 hash of the source file path, variable name, and any dimension slices. The render cache stores the final PNG bytes, keyed by the geometry key plus colormap and stretch parameters.
+
+When only the colormap or stretch changes, the frontend calls `/api/recolor` instead of `/api/render`. This skips the geometry entirely and re-runs only the colormap application on the already-warped array — typically under 100 ms even for full-disk FCI scenes.
+
+### Why satpy is bypassed for RGB composites
+
+Satpy's composite stack is designed for operational production pipelines. For interactive use it is slow to initialize, requires solar zenith angle computation for several composites, and sometimes refuses to render when auxiliary data is missing. For the IR-difference family (Dust, Ash, Airmass, Night Microphysics, Fog) and the visible composites (Natural Color, True Color, Day Microphysics), Xenia loads the raw FCI brightness temperature and reflectance bands directly from the L1C files and applies the EUMETSAT-specified per-channel `(min, max, gamma)` stretch parameters in a single NumPy pass. This is roughly 5–10x faster than the satpy path and produces identical output for the standard composites.
+
+---
+
+## License
+
+MIT
