@@ -19,6 +19,7 @@
 html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 13px; overflow: hidden; }
 #app { display: flex; height: 100vh; }
 
+
 /* ── sidebar ── */
 #sidebar {
   width: var(--panel-w);
@@ -27,7 +28,32 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
   border-right: 1px solid var(--border);
   display: flex; flex-direction: column;
   overflow: hidden; z-index: 10;
+  transition: width 0.2s;
 }
+#sidebar.collapsed {
+  width: 0;
+  border-right: none;
+}
+#sidebar-toggle {
+  position: absolute;
+  top: 50%;
+  left: var(--panel-w);
+  transform: translateY(-50%);
+  z-index: 20;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-left: none;
+  border-radius: 0 6px 6px 0;
+  color: var(--text);
+  cursor: pointer;
+  padding: 8px 5px;
+  font-size: 12px;
+  transition: left 0.2s;
+}
+#sidebar-toggle.collapsed {
+  left: 0;
+}
+
 #map-wrap    { flex: 1; position: relative; background: #000; }
 #map { width: 100%; height: 100%; background: transparent; z-index: 1; }
 
