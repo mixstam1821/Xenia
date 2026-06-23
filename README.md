@@ -137,6 +137,8 @@ the app is ready.
 
 Xenia reads from a single directory pointed to by `MTG_DATA_DIR` (default: `./data`). Zip files downloaded from the EUMETSAT Data Store are extracted automatically on startup — drop them in directly without unpacking. Subdirectories created by extracted zips are handled transparently.
 
+Download the demo data https://zenodo.org/records/20805415 and place it inside the `xenia/backend/data/`
+
 ---
 
 ## Why use it?
