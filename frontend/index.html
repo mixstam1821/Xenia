@@ -10,7 +10,15 @@
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/png"
   href="https://raw.githubusercontent.com/mixstam1821/Xenia/refs/heads/main/assets0/Xenia.png">
-
+  <script>
+    if (window.innerWidth <= 600) {
+      document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('sidebar').classList.add('collapsed');
+        document.getElementById('sidebar-toggle').classList.add('collapsed');
+        document.getElementById('sidebar-toggle').textContent = '▶';
+      });
+    }
+  </script>
 </head>
 <body>
   <div id="splash-screen">
