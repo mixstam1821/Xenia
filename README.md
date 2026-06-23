@@ -153,29 +153,123 @@ In Progress.
 
 ## Installation
 
-### Classic pip (manual)
+### Method 1 — Using `uv` 
 
+`uv` is a modern Python package manager that is **much faster** than pip — installation typically takes under 2 minutes instead of 10–15. It also handles virtual environments automatically.
+
+---
+
+#### Step 1 — Install `uv`
+
+**macOS / Linux:**
 ```bash
-# 1. clone
-git clone https://github.com/mixstam1821/xenia.git
-cd xenia
-
-# 2. create and activate a virtual environment
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-
-# 3. install dependencies
-pip install --upgrade pip
-pip install -r requirements.txt
-
-# 4. start the server
-cd backend
-uvicorn main:app --host 0.0.0.0 --port 8994 
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-Then open `http://localhost:8994`.
+Then restart your terminal (or run `source ~/.bashrc` / `source ~/.zshrc`).
 
-> **Note on system libraries:** On Linux you need `libhdf5-dev`, `libproj-dev`, and `libgdal-dev` installed via your package manager before `pip install` will succeed. On macOS install them via Homebrew (`brew install hdf5 proj gdal`). On Windows the PyPI wheels are self-contained and no system libraries are needed.
+**Windows (PowerShell):**
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+Then close and reopen your terminal.
+
+Verify it works:
+```bash
+uv --version
+```
+
+#### Step 2 — Install Git and download Xenia
+
+Same as Method 1, Steps 2 and 3.
+
+```bash
+git clone https://github.com/mixstam1821/xenia.git
+cd xenia
+```
+
+#### Step 3 — Install dependencies with uv
+
+`uv` creates the virtual environment and installs everything in one command:
+
+```bash
+uv venv .venv --python 3.12
+uv pip install -r requirements.txt
+```
+
+> If Python 3.12 is not installed, uv will offer to download it automatically.
+
+#### Step 4 — Activate the environment
+
+**macOS / Linux:**
+```bash
+source .venv/bin/activate
+```
+
+**Windows:**
+```
+.venv\Scripts\activate
+```
+
+#### Step 5 — Configure `.env` and start the server
+
+Same as Method 1, Steps 6, 7, and 8.
+
+```bash
+cp backend/.env.example backend/.env   # edit backend/.env with your EUMETSAT keys if needed
+cd backend
+uvicorn main:app --host 0.0.0.0 --port 8994
+```
+
+Then open **http://localhost:8994** in your browser.
+
+---
+
+### Method 2 — Using Docker (no Python setup required)
+
+Docker lets you run Xenia in a completely isolated container, without needing to install Python, pip, or any dependencies on your machine. **This is ideal if you don't want to deal with Python at all.**
+
+#### Step 1 — Install Docker
+
+Go to **https://www.docker.com/products/docker-desktop/** and download **Docker Desktop** for your OS.
+
+Run the installer and start Docker Desktop. Make sure the Docker whale icon appears in your system tray (Windows) or menu bar (macOS) before continuing.
+
+Verify Docker is working:
+```bash
+docker --version
+```
+#### Step 2 — Install Git and download Xenia
+
+```bash
+git clone https://github.com/mixstam1821/xenia.git
+cd xenia
+```
+#### Step 3 — Set up your `.env` file
+
+**macOS / Linux:**
+```bash
+cp backend/.env.example backend/.env
+```
+**Windows (Command Prompt):**
+```
+copy backend\.env.example backend\.env
+```
+Open `backend/.env` and fill in your EUMETSAT credentials if you want the download feature. See Method 1 Step 6 for details.
+
+#### Step 4 — Build and run
+
+```bash
+docker compose up --build
+```
+The first time you run this, Docker will download the base Python image and install all dependencies inside the container. This takes **5–20 minutes**. Subsequent starts are instant.
+
+When you see:
+```
+INFO:     Uvicorn running on http://0.0.0.0:8994
+```
+the app is ready.
 
 ---
 
