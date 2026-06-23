@@ -141,6 +141,65 @@ Download the demo data https://zenodo.org/records/20805415 and place it inside t
 
 ---
 
+### CLI batch export — `download_and_export.py`
+
+One of Xenia's practical strengths is that its render pipeline is not locked inside the web UI. The `download_and_export.py` script in `backend/` lets you download FCI L1C slots from the EUMETSAT Data Store and render any number of RGB composites to **georeferenced Web-Mercator PNGs** from the command line — no browser, no server, no manual steps.
+
+The script reads `EUMETSAT_KEY` and `EUMETSAT_SECRET` from `backend/.env` (the same file the server uses), so no additional setup is required beyond what you already configured for Xenia.
+
+#### What it does
+
+For each time step in the requested range the script:
+1. Searches the EUMETSAT Data Store for the nearest FCI full-disk slot.
+2. Downloads and extracts it (streaming, with live progress).
+3. Renders the requested composites to RGBA PNGs in `backend/exported_pngs/`, reprojected to Web-Mercator with correct geographic bounds embedded in the filename.
+4. Deletes the raw download immediately to keep disk usage flat — the PNGs are all that remain.
+
+Each PNG is named `{seq}_{composite}_{timestamp}.png` so they sort correctly for animation.
+
+#### Supported composites
+
+`dust` · `ash` · `fog` · `airmass` · `natural_color` · `true_color` · `night_microphysics` · `24h_microphysics` · `day_microphysics` · `cloud_phase` · `cloud_type` · `overshooting_tops`
+
+All composites use the EUMETSAT-specified per-channel `(min, max, gamma)` stretch — the same recipes as the live viewer.
+
+#### Usage
+
+```bash
+cd backend
+
+# Last 3 hours of dust, one slot per hour
+python download_and_export.py --composite dust --hours-back 3 --freq 1h
+
+# Explicit range, two composites, every 30 minutes
+python download_and_export.py --composite dust airmass \
+    --start 2026-06-20T00:00 --end 2026-06-21T00:00 --freq 30m
+
+# Single composite, 6-hourly, full day
+python download_and_export.py --composite natural_color \
+    --start 2026-06-20T00:00 --end 2026-06-21T00:00 --freq 6h
+```
+
+**`--freq` format:** `<integer><suffix>` where suffix is `m` (minutes), `h` (hours), or `d` (days). Examples: `30m`, `1h`, `6h`, `2d`.
+
+#### Loading the PNGs into Xenia
+
+The exported PNGs are already projected in Web-Mercator and carry correct bounds. Load them directly into the map via the **PNG Animation** card in the sidebar:
+
+1. Sidebar → **PNG Animation**
+2. **Choose PNGs (multiple)** → select all files from `backend/exported_pngs/`
+3. Preset: **FCI full disk** (bounds `-81, -81, 81, 81`)
+4. Leave **Warp equirect → Mercator** = OFF (PNGs are already warped)
+5. Click **Prepare PNG animation**
+
+This produces a frame-by-frame animation of the composite sequence, displayed as a georeferenced overlay on the interactive map — exactly the same as a live render, but from pre-rendered files you can share, archive, or reuse.
+
+#### Why this matters
+
+Pre-rendering to PNGs separates the expensive satellite I/O and reprojection from the viewing step. You can batch-export a full day overnight, then explore the sequence interactively with zero server load and no EUMETSAT connection. It also makes it straightforward to embed Xenia-rendered composites in reports, notebooks, or other tools that accept georeferenced images.
+
+---
+
 ## Why use it?
 
 Working with MTG satellite data in practice involves a lot of friction. Desktop tools like Panoply or QGIS can open NetCDF files, but they require manual projection setup and do not know anything about FCI chunk files, geostationary encoding, or EUMETSAT composite recipes. Writing a Python script works too, but it takes time and you have to repeat it for every new product type you encounter.
