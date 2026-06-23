@@ -15,10 +15,16 @@ It is built for people who work with satellite data professionally: researchers,
 
 <p align="center"><img src="assets/xeniam.png" width="780"/></p> 
 
-
-
-
 ---
+
+## Quick Checkout
+1. Visit https://huggingface.co/spaces/mixstam1453/Xenia
+2. Some data is already available. Click on data and select the parameters, and click Render.
+3. To load multiple RGB composite images: first download and extract the demo images from here: https://github.com/mixstam1821/Xenia/releases/download/demodata/png_exports.zip and then load all the dust images or the natural_color images, and finally click Place on Globe.
+---
+<p align="center"><img src="assets/Screenshot_20260623_233403s.png" width="780"/></p> 
+<p align="center"><img src="assets/Screenshot_20260623_234042.png" width="780"/></p> 
+<p align="center"><img src="assets/Screenshot_20260623_234416.png" width="780"/></p> 
 
 ## Installation
 
