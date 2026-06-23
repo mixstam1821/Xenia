@@ -96,7 +96,13 @@ function toggleResampling() {
     map.setPaintProperty(inactiveLyr, "raster-resampling", _resamplingMode);
   }
 }
-
+function toggleSidebar() {
+  const sb  = document.getElementById('sidebar');
+  const btn = document.getElementById('sidebar-toggle');
+  sb.classList.toggle('collapsed');
+  btn.classList.toggle('collapsed');
+  btn.textContent = sb.classList.contains('collapsed') ? '▶' : '◀';
+}
 // ══════════════════════════════════════════════════════════════════════════
 //  TIMESTAMP OVERLAY
 // ══════════════════════════════════════════════════════════════════════════
