@@ -171,8 +171,7 @@ Any CF-compliant NetCDF with 1-D or 2-D lat/lon coordinates is supported through
 
 ### Unstructured grids (UGRID)
 
-Files following the UGRID convention (face-node connectivity, face centroid coordinates) are loaded with UXarray and rendered by nearest-neighbor scatter to a Mercator grid. This covers spectral element model output (CAM-SE, MPAS) and unstructured ocean models.
-
+In Progress.
 ---
 
 ## Installation
