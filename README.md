@@ -153,83 +153,7 @@ In Progress.
 
 ## Installation
 
-### One-command install (uv)
-
-Clone the repository, then run the script for your platform. Each script installs uv (if not present), creates a virtual environment, installs all dependencies, and starts the server. On subsequent runs it skips the steps already done and just starts.
-
-**Linux**
-```bash
-git clone https://github.com/mixstam1821/xenia.git
-cd xenia
-chmod +x install_linux.sh
-./install_linux.sh
-```
-To use a custom data directory:
-```bash
-MTG_DATA_DIR=/path/to/your/data ./install_linux.sh
-```
-
-**macOS** (Ventura / Sonoma, Apple Silicon and Intel)
-```bash
-git clone https://github.com/mixstam1821/xenia.git
-cd xenia
-chmod +x install_mac.sh
-./install_mac.sh
-```
-The script installs Homebrew and the required system libraries (HDF5, PROJ, GDAL) automatically if they are missing. The browser opens automatically after startup.
-
-**Windows** (PowerShell 5.1 or 7+)
-
-First, allow local scripts to run (one-time, run as Administrator):
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
-Then:
-```powershell
-git clone https://github.com/mixstam1821/xenia.git
-cd xenia
-.\install_windows.ps1
-```
-To use a custom data directory:
-```powershell
-$env:MTG_DATA_DIR = "D:\my_data"
-.\install_windows.ps1
-```
-The browser opens automatically after startup. On Windows, `pyresample`, `rasterio`, and `pyproj` install as pre-built wheels so no compiler or system libraries are required.
-
-After startup, open `http://localhost:8994` in your browser (or it opens automatically on macOS and Windows).
-
----
-
-### With Docker
-
-```bash
-# Build
-docker build -t xenia .
-
-# Run, mounting your data directory
-docker run -d \
-  -p 8994:8994 \
-  -v /path/to/your/data:/data \
-  -e MTG_DATA_DIR=/data \
-  --name xenia \
-  xenia
-```
-
-Then open `http://localhost:8994`.
-
-The Dockerfile uses a `condaforge/mambaforge` base so GDAL, PROJ, HDF5, and pyresample install as pre-compiled conda-forge binaries — no compilation from source, no missing system libraries, no PROJ_DATA path issues. pip-only packages (satpy, uxarray, pycoast) are layered on top.
-
-To stop and remove:
-```bash
-docker stop xenia && docker rm xenia
-```
-
----
-
 ### Classic pip (manual)
-
-If you prefer full control or are working in an existing environment:
 
 ```bash
 # 1. clone
@@ -237,19 +161,16 @@ git clone https://github.com/mixstam1821/xenia.git
 cd xenia
 
 # 2. create and activate a virtual environment
-python3.11 -m venv .venv
+python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 
 # 3. install dependencies
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# 4. set your data directory, if needed
-export MTG_DATA_DIR=/path/to/your/data   # Windows: set MTG_DATA_DIR=C:\your\data
-
-# 5. start the server
+# 4. start the server
 cd backend
-uvicorn main:app --host 0.0.0.0 --port 8994 --workers 1
+uvicorn main:app --host 0.0.0.0 --port 8994 
 ```
 
 Then open `http://localhost:8994`.
