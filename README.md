@@ -6,8 +6,6 @@
 
 Xenia is a FastAPI-based web application for exploring EUMETSAT Meteosat Third Generation (MTG) satellite products, alongside a wide range of climate and atmospheric science NetCDF files. Drop a file in, pick a variable, and get a georeferenced map on an interactive 3D globe.
 
-It is built for people who work with satellite data professionally: researchers, forecasters, and data engineers who need to quickly inspect what is actually inside a file, visualize it correctly, and move on.
-
 <div align="center">
 <video src="https://github.com/user-attachments/assets/c14d743d-25a2-4de3-bf8c-3631cafd5e93" controls width="780"></video>
 </div>
@@ -19,16 +17,12 @@ It is built for people who work with satellite data professionally: researchers,
 
 ## Quick Checkout
 1. Visit https://huggingface.co/spaces/mixstam1453/Xenia
-2. Some data is already available. Click on data and select the parameters, and click Render.
+2. Some data is already available. Click on data, select the parameter, and click Render.
 3. To load multiple RGB composite images: first download and extract the demo images from here: https://github.com/mixstam1821/Xenia/releases/download/demodata/png_exports.zip and then load all the dust images or the natural_color images, and finally click Place on Globe.
----
-<p align="center"><img src="assets/Screenshot_20260623_233403s.png" width="780"/></p> 
-<p align="center"><img src="assets/Screenshot_20260623_234042.png" width="780"/></p> 
-<p align="center"><img src="assets/Screenshot_20260623_234416.png" width="780"/></p> 
 
 ## Installation
 
-### Method 1 — Using `uv` 
+### Method 1 — Using `uv` (Recommended)
 
 `uv` is a modern Python package manager that is **much faster** than pip — installation typically takes under 2 minutes. It also handles virtual environments automatically.
 
@@ -152,7 +146,7 @@ INFO:     Uvicorn running on http://0.0.0.0:8994
 ```
 the app is ready.
 
-#### Step 6 — Stopping Docker
+#### Stopping Docker (if needed)
 
 Press `Ctrl+C` in the terminal, or run:
 
@@ -165,14 +159,19 @@ docker compose down
 ```bash
 docker compose up
 ```
-
 ---
 
-### Data directory
+### Instructions
 
 Xenia reads from a single directory pointed to by `MTG_DATA_DIR` (default: `./data`). Zip files downloaded from the EUMETSAT Data Store are extracted automatically on startup — drop them in directly without unpacking. Subdirectories created by extracted zips are handled transparently.
 
-Download the demo data https://zenodo.org/records/20805415 and place it inside the `xenia/backend/data/`
+Download the demo data https://zenodo.org/records/20805415 and place it inside the `xenia/backend/data/`. This is where Xenia by default sees the data. No need to unzip the .zip files.
+You can set a different folder path inside the app, on the top. Please note that if you install with Docker (Method 2), you can not set a different data folder path, but only use the `xenia/backend/data`.
+
+Step 1. Setting a data folder path is optional; you can paste the data inside the `xenia/backend/data` and the App will see it after a refresh.
+<p align="center"><img src="assets/Screenshot_20260623_233403s.png" width="780"/></p> 
+<p align="center"><img src="assets/Screenshot_20260623_234042.png" width="780"/></p> 
+<p align="center"><img src="assets/Screenshot_20260623_234416.png" width="780"/></p> 
 
 ---
 
@@ -219,7 +218,7 @@ python download_and_export.py --composite natural_color \
 
 #### Loading the PNGs into Xenia
 
-The exported PNGs are already projected in Web-Mercator and carry correct bounds. Load them directly into the map via the **PNG Animation** card in the sidebar:
+The exported PNGs are already projected in Web-Mercator and carry correct bounds. Load them directly into the map via the **PNG Image Overlay** card in the sidebar:
 
 1. Sidebar → **PNG Image Overlay**
 2. **Choose PNG / JPG** → select the files from `backend/exported_pngs/`
