@@ -165,12 +165,15 @@ docker compose up
 
 ### Instructions
 
-Xenia reads from a single directory pointed to by `MTG_DATA_DIR` (default: `./data`). Zip files downloaded from the EUMETSAT Data Store are extracted automatically on startup — drop them in directly without unpacking. Subdirectories created by extracted zips are handled transparently.
+- Zip files downloaded from the EUMETSAT Data Store are extracted automatically on startup — drop them in directly without unpacking. Subdirectories created by extracted zips are handled transparently.
 
-Download the demo data https://zenodo.org/records/20805415 and place it inside the `xenia/backend/data/`. This is where Xenia by default sees the data. No need to unzip the .zip files.
+- Download the demo data https://zenodo.org/records/20805415 and place it inside the `xenia/backend/data/`. This is where Xenia by default sees the data.
 You can set a different folder path inside the app, on the top. Please note that if you install with Docker (Method 2), you can not set a different data folder path, but only use the `xenia/backend/data`.
 
-Step 1. Setting a data folder path is optional; you can paste the data inside the `xenia/backend/data` and the App will see it after a refresh.
+- Step 1. Setting a data folder path is optional; you can paste the data inside the `xenia/backend/data` and the App will see it after a refresh.
+
+- If you load a `MTI1+FCI-1C-RRAD` file that contains RGB composites, then you can plot either the per-channel measurements (eg ir_87, vis_06) or, in a panel below, the common RGB composites such as dust or natural_color and click the Render RGB button.
+  
 <p align="center"><img src="assets/Screenshot_20260623_233403s.png" width="780"/></p> 
 <p align="center"><img src="assets/Screenshot_20260623_234042.png" width="780"/></p> 
 <p align="center"><img src="assets/Screenshot_20260623_234416.png" width="780"/></p> 
