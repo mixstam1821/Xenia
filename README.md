@@ -2,14 +2,16 @@
 
 **A satellite and climate NetCDF viewer, fine-tuned for MTG FCI & LI products.**
 
-<p align="center"><img src="assets0/Xenia.png" width="500"/></p> 
+<p align="center">
+  <img src="assets0/Xenia.png" width="45%" />
+  <img src="assets/Screenshot_20260623_014859.png" width="45%" />
+</p>
 
 Xenia is a FastAPI-based web application for exploring EUMETSAT Meteosat Third Generation (MTG) satellite products, alongside a wide range of climate and atmospheric science NetCDF files. Drop a file in, pick a variable, and get a georeferenced map on an interactive 3D globe.
 
 <div align="center">
 <video src="https://github.com/user-attachments/assets/c14d743d-25a2-4de3-bf8c-3631cafd5e93" controls width="780"></video>
 </div>
-<p align="center"><img src="assets/Screenshot_20260623_014859.png" width="780"/></p> 
 
 <p align="center"><img src="assets/xeniam.png" width="780"/></p> 
 
