@@ -2,7 +2,7 @@
 
 **A satellite and climate NetCDF viewer, fine-tuned for MTG FCI & LI products.**
 
-<p align="center"><img src="assets0/Xenia.png" width="780"/></p> 
+<p align="center"><img src="assets0/Xenia.png" width="500"/></p> 
 
 Xenia is a FastAPI-based web application for exploring EUMETSAT Meteosat Third Generation (MTG) satellite products, alongside a wide range of climate and atmospheric science NetCDF files. Drop a file in, pick a variable, and get a georeferenced map on an interactive 3D globe.
 
@@ -380,6 +380,10 @@ When only the colormap or stretch changes, the frontend calls `/api/recolor` ins
 ### Why satpy is bypassed for RGB composites
 
 Satpy's composite stack is designed for operational production pipelines. For interactive use it is slow to initialize, requires solar zenith angle computation for several composites, and sometimes refuses to render when auxiliary data is missing. For the IR-difference family (Dust, Ash, Airmass, Night Microphysics, Fog) and the visible composites (Natural Color, True Color, Day Microphysics), Xenia loads the raw FCI brightness temperature and reflectance bands directly from the L1C files and applies the EUMETSAT-specified per-channel `(min, max, gamma)` stretch parameters in a single NumPy pass. This is roughly 5–10x faster than the satpy path and produces identical output for the standard composites.
+
+## Feedback
+
+Feedback, bug reports, and feature requests are welcome. If you encounter an issue or have an idea for improvement, please open an issue on GitHub.
 
 ---
 
