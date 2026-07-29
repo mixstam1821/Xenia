@@ -96,6 +96,8 @@ COMPOSITE_RECIPES = {
     "fog":                [( -4.0,  2.0, 1.0), (  0.0,  6.0, 1.0), (243.0, 283.0, 1.0)],
     "natural_color":      [(  0.0,100.0, 1.0), (  0.0,100.0, 1.0), (  0.0, 100.0, 1.0)],
     "overshooting_tops":  [(-23.8,  6.4, 1.0), (-29.9, 23.6, 1.0), (244.5, 191.4, 1.0)],
+    "fire_temperature":   [(273.0, 333.0, 0.4),(0.0, 100.0, 1.0),(0.0, 75.0, 1.0)],
+    "snow":               [(0.0, 100.0, 1.7), (0.0,  70.0, 1.7), (0.0,  30.0, 1.7)],
     # true_color: gamma=0.0 sentinel — bands_to_rgb_inputs returns pre-built [0,1] output,
     # apply_recipe is skipped entirely in build_rgba.
     "true_color":         [(0.0, 0.0, 0.0), (0.0, 0.0, 0.0), (0.0, 0.0, 0.0)],
@@ -109,11 +111,13 @@ RGB_CHANNEL_INPUTS = {
     "24h_microphysics":   ("ir_87", "ir_105", "ir_123"),
     "airmass":            ("wv_63", "wv_73", "ir_97", "ir_105"),
     "overshooting_tops":  ("wv_63", "ir_97", "ir_105"),
+    "fire_temperature":   ("ir_38", "nir_22", "nir_16"),
     "natural_color":      ("nir_16", "vis_08", "vis_06"),
     "cloud_phase":        ("nir_16", "nir_22", "vis_06"),
     "day_microphysics":   ("vis_08", "nir_16", "ir_105"),
     "cloud_type":         ("nir_13", "vis_06", "nir_16"),
     "true_color":         ("vis_08", "vis_06", "vis_05", "vis_04"),
+    "snow":               ("vis_08", "nir_16", "ir_38"),
 }
 
 
@@ -272,6 +276,14 @@ def bands_to_rgb_inputs(composite, bands):
         return bands["vis_08"], bands["nir_16"], bands["ir_105"]
     if c == "cloud_type":
         return bands["nir_13"], bands["vis_06"], bands["nir_16"]
+
+    if c == "fire_temperature":
+        return bands["ir_38"], bands["nir_22"], bands["nir_16"]
+
+    if c == "snow":
+        _ir38_refl = np.clip((bands["ir_38"] - 270.0) * 0.5, 0.0, 30.0)
+        return (bands["vis_08"], bands["nir_16"], _ir38_refl)
+
     if c == "true_color":
         GAMMA = 2.3
         def _tc(ch):
@@ -461,6 +473,24 @@ def render_one(scn, composite: str) -> Tuple[Optional[np.ndarray], Optional[list
         print(f"    ✗ {e}")
         return None, None
 
+
+    # ── align all bands to the largest shape ──────────────────────────
+    shapes = [b.shape for b in bands.values()]
+    target_shape = max(shapes, key=lambda s: s[0] * s[1])
+    aligned = {}
+    for name, arr in bands.items():
+        if arr.shape == target_shape:
+            aligned[name] = arr
+        else:
+            ry = target_shape[0] / arr.shape[0]
+            rx = target_shape[1] / arr.shape[1]
+            row_idx = np.clip((np.arange(target_shape[0]) / ry).astype(int), 0, arr.shape[0] - 1)
+            col_idx = np.clip((np.arange(target_shape[1]) / rx).astype(int), 0, arr.shape[1] - 1)
+            aligned[name] = arr[np.ix_(row_idx, col_idx)]
+    bands = aligned
+    # ────────────────────────────────────────────────────────────────
+
+    
     r, g, b  = bands_to_rgb_inputs(composite, bands)
     arr_hwc  = np.stack([r, g, b], axis=-1)
 
@@ -653,16 +683,7 @@ Frequency format: <integer><suffix>  e.g.  30m  1h  2h  6h  1d  2d
     for i, p in enumerate(pngs, 1):
         print(f"  {i:>3}. {p.name}")
 
-    print()
-    print("HOW TO ANIMATE IN XENIA")
-    print("─" * 40)
-    print("1. Sidebar → 'PNG Animation' card")
-    print("2. 'Choose PNGs (multiple)' → select all files in exported_pngs/")
-    print("3. Preset: FCI full disk  (-81, -81, 81, 81)")
-    print("4. Leave 'Warp equirect → Mercator' = OFF")
-    print("5. Click 'Prepare PNG animation' → enjoy!")
-    print()
-    print("Files are named  1_dust_…, 2_dust_…  for correct sort order.")
+
 
 
 if __name__ == "__main__":
